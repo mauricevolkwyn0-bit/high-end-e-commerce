@@ -1,0 +1,251 @@
+import { Product, Collection } from '@/lib/types'
+
+export const collections: Collection[] = [
+  {
+    id: '1',
+    name: 'The Obsidian Collection',
+    slug: 'obsidian-collection',
+    description: 'An exploration of darkness and light. Avant-garde silhouettes crafted from the rarest fabrics on earth.',
+    cover_image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=1400&q=90&auto=format&fit=crop',
+    product_count: 12,
+    created_at: '2025-01-01',
+  },
+  {
+    id: '2',
+    name: 'Lumière de Paris',
+    slug: 'lumiere-de-paris',
+    description: 'Parisian elegance reimagined for the modern sovereign. Fluid drapes, architectural precision.',
+    cover_image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1400&q=90&auto=format&fit=crop',
+    product_count: 9,
+    created_at: '2025-01-01',
+  },
+  {
+    id: '3',
+    name: 'Nocturne',
+    slug: 'nocturne',
+    description: 'Limited edition. Twelve pieces for those who command the night.',
+    cover_image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1400&q=90&auto=format&fit=crop',
+    product_count: 6,
+    created_at: '2025-01-01',
+  },
+  {
+    id: '4',
+    name: 'The Imperiale',
+    slug: 'imperiale',
+    description: 'Bespoke menswear of uncompromising quality. Tailored in the tradition of Savile Row, evolved.',
+    cover_image: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=1400&q=90&auto=format&fit=crop',
+    product_count: 8,
+    created_at: '2025-01-01',
+  },
+]
+
+export const products: Product[] = [
+  {
+    id: '1',
+    name: 'Onyx Couture Gown',
+    slug: 'onyx-couture-gown',
+    description: 'Hand-sewn in Paris by our master atelier, this floor-length gown is constructed from double-faced silk-satin. The structured bodice features 3,200 individually placed obsidian beads, each sourced from the volcanic shores of Iceland. A garment for those who understand that true luxury is invisible to most.',
+    price: 48500,
+    compare_at_price: undefined,
+    images: [
+      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=90&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1581044777550-4cfa30e98d9f?w=900&q=90&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=90&auto=format&fit=crop',
+    ],
+    category: 'Womenswear',
+    collection_id: '1',
+    collection_name: 'The Obsidian Collection',
+    sizes: ['XS', 'S', 'M', 'L'],
+    colors: [
+      { name: 'Noir', hex: '#0A0806' },
+      { name: 'Midnight', hex: '#1C1A2E' },
+    ],
+    stock: 3,
+    is_featured: true,
+    material: 'Double-faced silk-satin, obsidian beadwork',
+    origin: 'Made in Paris, France',
+    created_at: '2025-01-01',
+  },
+  {
+    id: '2',
+    name: 'Imperial Cashmere Overcoat',
+    slug: 'imperial-cashmere-overcoat',
+    description: 'Woven from 14-micron Mongolian cashmere — the finest grade available. The structured silhouette is achieved through hand-tailoring over 120 hours, with full canvas construction and hand-stitched lapels. Available in three bespoke colourways, this is the overcoat for those who have arrived.',
+    price: 32000,
+    images: [
+      'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=900&q=90&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&q=90&auto=format&fit=crop',
+    ],
+    category: 'Menswear',
+    collection_id: '4',
+    collection_name: 'The Imperiale',
+    sizes: ['44', '46', '48', '50', '52', '54'],
+    colors: [
+      { name: 'Camel', hex: '#C19A6B' },
+      { name: 'Charcoal', hex: '#36454F' },
+      { name: 'Onyx', hex: '#0A0806' },
+    ],
+    stock: 5,
+    is_featured: true,
+    material: '14-micron Mongolian cashmere, silk lining',
+    origin: 'Made in London, England',
+    created_at: '2025-01-01',
+  },
+  {
+    id: '3',
+    name: 'Éclat Diamond Cuff',
+    slug: 'eclat-diamond-cuff',
+    description: 'A sculptural masterwork. This asymmetric cuff is formed from 18-karat white gold and set with 47 individually selected diamonds totalling 8.6 carats. Each stone is certified D-colour, internally flawless. Created in our Geneva atelier in an edition of 25.',
+    price: 185000,
+    images: [
+      'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900&q=90&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=900&q=90&auto=format&fit=crop',
+    ],
+    category: 'Jewelry',
+    collection_id: '1',
+    collection_name: 'The Obsidian Collection',
+    sizes: ['One Size'],
+    colors: [
+      { name: 'White Gold', hex: '#E8E4DC' },
+      { name: 'Yellow Gold', hex: '#CFB53B' },
+    ],
+    stock: 4,
+    is_featured: true,
+    material: '18-karat white gold, D-IF diamonds (8.6ct total)',
+    origin: 'Made in Geneva, Switzerland',
+    created_at: '2025-01-01',
+  },
+  {
+    id: '4',
+    name: 'Nuit Leather Tote',
+    slug: 'nuit-leather-tote',
+    description: 'Structured from a single hide of Himalayan crocodile leather — among the rarest materials in the world. The interior is lined with custom-woven silk and features a 24-karat gold-plated clasp mechanism. Each bag bears a unique serial number and certificate of provenance.',
+    price: 67500,
+    images: [
+      'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=900&q=90&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=900&q=90&auto=format&fit=crop',
+    ],
+    category: 'Bags',
+    collection_id: '2',
+    collection_name: 'Lumière de Paris',
+    sizes: ['One Size'],
+    colors: [
+      { name: 'Cognac', hex: '#834333' },
+      { name: 'Noir', hex: '#0A0806' },
+    ],
+    stock: 2,
+    is_featured: true,
+    material: 'Himalayan crocodile leather, silk lining, 24k gold hardware',
+    origin: 'Made in Paris, France',
+    created_at: '2025-01-01',
+  },
+  {
+    id: '5',
+    name: 'Silk Charmeuse Blouse',
+    slug: 'silk-charmeuse-blouse',
+    description: 'Cut from 22-momme Japanese silk charmeuse, this blouse drapes with an almost liquid quality. The deep V neckline is finished with a hand-rolled hem, and the oversized sleeves cascade dramatically to the wrist. A study in effortless supremacy.',
+    price: 4200,
+    images: [
+      'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&q=90&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&q=90&auto=format&fit=crop',
+    ],
+    category: 'Womenswear',
+    collection_id: '2',
+    collection_name: 'Lumière de Paris',
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    colors: [
+      { name: 'Ivory', hex: '#FFFFF0' },
+      { name: 'Blush', hex: '#DE8CA0' },
+      { name: 'Onyx', hex: '#0A0806' },
+    ],
+    stock: 12,
+    is_featured: false,
+    material: '22-momme Japanese silk charmeuse',
+    origin: 'Made in Milan, Italy',
+    created_at: '2025-01-01',
+  },
+  {
+    id: '6',
+    name: 'Bespoke Dinner Jacket',
+    slug: 'bespoke-dinner-jacket',
+    description: 'The apex of formal menswear. Constructed from Dormeuil "Vanquish II" fabric — one of the rarest cloths in the world — and tailored over 80 hours in our London atelier. Peak lapels faced in grosgrain silk. Exclusively available via private appointment.',
+    price: 28000,
+    images: [
+      'https://images.unsplash.com/photo-1488161628813-04466f872be2?w=900&q=90&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=900&q=90&auto=format&fit=crop',
+    ],
+    category: 'Menswear',
+    collection_id: '4',
+    collection_name: 'The Imperiale',
+    sizes: ['44', '46', '48', '50', '52'],
+    colors: [
+      { name: 'Midnight Navy', hex: '#1B2A4A' },
+      { name: 'Ivory', hex: '#FFFFF0' },
+      { name: 'Onyx', hex: '#0A0806' },
+    ],
+    stock: 7,
+    is_featured: false,
+    material: "Dormeuil 'Vanquish II', grosgrain silk",
+    origin: 'Made in London, England',
+    created_at: '2025-01-01',
+  },
+  {
+    id: '7',
+    name: 'Nocturne Column Dress',
+    slug: 'nocturne-column-dress',
+    description: 'From the limited Nocturne collection. Twelve pieces exist worldwide. This column dress is sculpted from jet-black duchesse satin with a structured inner corsetry crafted from vintage boning. The open back features a hand-embroidered constellation in platinum thread.',
+    price: 72000,
+    images: [
+      'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=900&q=90&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=90&auto=format&fit=crop',
+    ],
+    category: 'Womenswear',
+    collection_id: '3',
+    collection_name: 'Nocturne',
+    sizes: ['XS', 'S', 'M'],
+    colors: [
+      { name: 'Jet', hex: '#0A0806' },
+    ],
+    stock: 1,
+    is_featured: true,
+    material: 'Duchesse satin, platinum thread embroidery',
+    origin: 'Made in Paris, France',
+    created_at: '2025-01-01',
+  },
+  {
+    id: '8',
+    name: 'Gold Vermeil Chain Necklace',
+    slug: 'gold-vermeil-chain-necklace',
+    description: 'An architectural statement piece. Hand-forged in 24-karat gold vermeil over sterling silver, this sculptural chain necklace features interlocking geometric links of varying dimensions. Each link is individually polished to a mirror finish.',
+    price: 8900,
+    images: [
+      'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900&q=90&auto=format&fit=crop',
+    ],
+    category: 'Jewelry',
+    collection_id: '2',
+    collection_name: 'Lumière de Paris',
+    sizes: ['One Size'],
+    colors: [
+      { name: '24k Gold', hex: '#CFB53B' },
+    ],
+    stock: 8,
+    is_featured: false,
+    material: '24-karat gold vermeil, sterling silver',
+    origin: 'Made in Florence, Italy',
+    created_at: '2025-01-01',
+  },
+]
+
+export const featuredProducts = products.filter(p => p.is_featured)
+
+export function getProductBySlug(slug: string): Product | undefined {
+  return products.find(p => p.slug === slug)
+}
+
+export function getProductsByCollection(collectionId: string): Product[] {
+  return products.filter(p => p.collection_id === collectionId)
+}
+
+export function getCollectionBySlug(slug: string): Collection | undefined {
+  return collections.find(c => c.slug === slug)
+}
