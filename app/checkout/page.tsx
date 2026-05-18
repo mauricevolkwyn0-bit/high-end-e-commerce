@@ -28,6 +28,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<Step>('shipping')
   const [address, setAddress] = useState<ShippingAddress>(emptyAddress)
   const [errors, setErrors] = useState<Partial<ShippingAddress>>({})
+  const [paypalError, setPaypalError] = useState<string | null>(null)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -178,15 +179,24 @@ export default function CheckoutPage() {
                       currency: 'USD',
                     }}
                   >
+                    {paypalError && (
+                      <p className="mb-4 text-sm text-red-400 text-center">{paypalError}</p>
+                    )}
                     <PayPalButtons
                       style={{ layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' }}
                       createOrder={async () => {
+                        setPaypalError(null)
                         const res = await fetch('/api/paypal/create-order', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ amount: total }),
                         })
                         const data = await res.json()
+                        if (!res.ok || !data.id) {
+                          const msg = data.error ?? 'Failed to create PayPal order. Check server env vars.'
+                          setPaypalError(msg)
+                          throw new Error(msg)
+                        }
                         return data.id
                       }}
                       onApprove={async (data) => {
@@ -199,7 +209,12 @@ export default function CheckoutPage() {
                         if (capture.status === 'COMPLETED') {
                           clearCart()
                           setStep('confirmation')
+                        } else {
+                          setPaypalError('Payment capture failed. Please try again.')
                         }
+                      }}
+                      onError={(err) => {
+                        setPaypalError(String(err) ?? 'An unexpected PayPal error occurred.')
                       }}
                     />
                   </PayPalScriptProvider>
