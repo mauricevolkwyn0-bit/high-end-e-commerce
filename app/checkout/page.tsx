@@ -62,7 +62,7 @@ export default function CheckoutPage() {
     options?: { type?: string; placeholder?: string; half?: boolean }
   ) {
     return (
-      <div className={options?.half ? 'col-span-1' : 'col-span-2'}>
+      <div className={options?.half ? 'col-span-1' : 'col-span-1 sm:col-span-2'}>
         <label className="block text-2xs tracking-[0.2em] uppercase text-obsidian-muted mb-2">
           {label}
         </label>
@@ -99,7 +99,7 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen pt-24 pb-section">
       {/* Header */}
-      <div className="px-6 lg:px-12 max-w-screen-2xl mx-auto mb-10">
+      <div className="px-4 sm:px-6 lg:px-12 max-w-screen-2xl mx-auto mb-10">
         <Link href="/" className="font-display text-2xl tracking-[0.4em] uppercase text-obsidian-cream">
           OBSIDIAN
         </Link>
@@ -119,14 +119,14 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      <div className="px-6 lg:px-12 max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-12 lg:gap-20">
+      <div className="px-4 sm:px-6 lg:px-12 max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-10 lg:gap-20">
 
         {/* Left — form area */}
-        <div>
+        <div className="order-2 lg:order-1">
           {step === 'shipping' && (
             <form onSubmit={handleShippingSubmit} noValidate>
               <h2 className="font-display text-3xl text-obsidian-cream mb-8">Shipping Details</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {field('first_name', 'First Name', { half: true })}
                 {field('last_name', 'Last Name', { half: true })}
                 {field('email', 'Email Address', { type: 'email' })}
@@ -160,7 +160,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* Shipping summary */}
-              <div className="border border-obsidian-border p-6 mb-8 space-y-1">
+              <div className="border border-obsidian-border p-4 sm:p-6 mb-8 space-y-1">
                 <p className="text-2xs tracking-[0.2em] uppercase text-obsidian-gold mb-3">Shipping to</p>
                 <p className="text-sm text-obsidian-cream">{address.first_name} {address.last_name}</p>
                 <p className="text-sm text-obsidian-cream/70">{address.address_line_1}{address.address_line_2 ? `, ${address.address_line_2}` : ''}</p>
@@ -168,7 +168,7 @@ export default function CheckoutPage() {
                 <p className="text-sm text-obsidian-cream/70">{address.country}</p>
               </div>
 
-              <div className="border border-obsidian-border p-6">
+              <div className="border border-obsidian-border p-4 sm:p-6">
                 <p className="text-2xs tracking-[0.2em] uppercase text-obsidian-muted mb-6">
                   Total due: <span className="text-obsidian-cream text-sm ml-2">${total.toLocaleString()}</span>
                 </p>
@@ -253,7 +253,7 @@ export default function CheckoutPage() {
 
         {/* Right — order summary */}
         {step !== 'confirmation' && (
-          <aside className="lg:sticky lg:top-28 lg:self-start space-y-6">
+          <aside className="order-1 lg:order-2 lg:sticky lg:top-28 lg:self-start space-y-6 border border-obsidian-border lg:border-0 p-5 lg:p-0">
             <h3 className="font-display text-2xl text-obsidian-cream">Order Summary</h3>
             <div className="space-y-5">
               {visibleItems.map((item) => (
