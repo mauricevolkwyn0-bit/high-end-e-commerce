@@ -45,7 +45,7 @@ export const products: Product[] = [
     name: 'Onyx Couture Gown',
     slug: 'onyx-couture-gown',
     description: 'Hand-sewn in Paris by our master atelier, this floor-length gown is constructed from double-faced silk-satin. The structured bodice features 3,200 individually placed obsidian beads, each sourced from the volcanic shores of Iceland. A garment for those who understand that true luxury is invisible to most.',
-    price: 48500,
+    price: 18500,
     compare_at_price: undefined,
     images: [
       'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=90&auto=format&fit=crop',
@@ -71,7 +71,7 @@ export const products: Product[] = [
     name: 'Imperial Cashmere Overcoat',
     slug: 'imperial-cashmere-overcoat',
     description: 'Woven from 14-micron Mongolian cashmere — the finest grade available. The structured silhouette is achieved through hand-tailoring over 120 hours, with full canvas construction and hand-stitched lapels. Available in three bespoke colourways, this is the overcoat for those who have arrived.',
-    price: 32000,
+    price: 12000,
     images: [
       'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=900&q=90&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&q=90&auto=format&fit=crop',
@@ -96,7 +96,7 @@ export const products: Product[] = [
     name: 'Éclat Diamond Cuff',
     slug: 'eclat-diamond-cuff',
     description: 'A sculptural masterwork. This asymmetric cuff is formed from 18-karat white gold and set with 47 individually selected diamonds totalling 8.6 carats. Each stone is certified D-colour, internally flawless. Created in our Geneva atelier in an edition of 25.',
-    price: 185000,
+    price: 19500,
     images: [
       'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900&q=90&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=900&q=90&auto=format&fit=crop',
@@ -120,7 +120,7 @@ export const products: Product[] = [
     name: 'Nuit Leather Tote',
     slug: 'nuit-leather-tote',
     description: 'Structured from a single hide of Himalayan crocodile leather — among the rarest materials in the world. The interior is lined with custom-woven silk and features a 24-karat gold-plated clasp mechanism. Each bag bears a unique serial number and certificate of provenance.',
-    price: 67500,
+    price: 500,
     images: [
       'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=900&q=90&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=900&q=90&auto=format&fit=crop',
@@ -144,7 +144,7 @@ export const products: Product[] = [
     name: 'Silk Charmeuse Blouse',
     slug: 'silk-charmeuse-blouse',
     description: 'Cut from 22-momme Japanese silk charmeuse, this blouse drapes with an almost liquid quality. The deep V neckline is finished with a hand-rolled hem, and the oversized sleeves cascade dramatically to the wrist. A study in effortless supremacy.',
-    price: 4200,
+    price: 1000,
     images: [
       'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&q=90&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&q=90&auto=format&fit=crop',
@@ -169,7 +169,7 @@ export const products: Product[] = [
     name: 'Bespoke Dinner Jacket',
     slug: 'bespoke-dinner-jacket',
     description: 'The apex of formal menswear. Constructed from Dormeuil "Vanquish II" fabric — one of the rarest cloths in the world — and tailored over 80 hours in our London atelier. Peak lapels faced in grosgrain silk. Exclusively available via private appointment.',
-    price: 28000,
+    price: 9500,
     images: [
       'https://images.unsplash.com/photo-1488161628813-04466f872be2?w=900&q=90&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=900&q=90&auto=format&fit=crop',
@@ -194,7 +194,7 @@ export const products: Product[] = [
     name: 'Nocturne Column Dress',
     slug: 'nocturne-column-dress',
     description: 'From the limited Nocturne collection. Twelve pieces exist worldwide. This column dress is sculpted from jet-black duchesse satin with a structured inner corsetry crafted from vintage boning. The open back features a hand-embroidered constellation in platinum thread.',
-    price: 72000,
+    price: 16500,
     images: [
       'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=900&q=90&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=90&auto=format&fit=crop',
@@ -217,7 +217,7 @@ export const products: Product[] = [
     name: 'Gold Vermeil Chain Necklace',
     slug: 'gold-vermeil-chain-necklace',
     description: 'An architectural statement piece. Hand-forged in 24-karat gold vermeil over sterling silver, this sculptural chain necklace features interlocking geometric links of varying dimensions. Each link is individually polished to a mirror finish.',
-    price: 8900,
+    price: 1500,
     images: [
       'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900&q=90&auto=format&fit=crop',
     ],
@@ -232,6 +232,28 @@ export const products: Product[] = [
     is_featured: false,
     material: '24-karat gold vermeil, sterling silver',
     origin: 'Made in Florence, Italy',
+    created_at: '2025-01-01',
+  },
+  {
+    id: '9',
+    name: 'Test Product',
+    slug: 'test-product',
+    description: 'A test product for payment flow verification. Not for sale.',
+    price: 10,
+    images: [
+      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=90&auto=format&fit=crop',
+    ],
+    category: 'Womenswear',
+    collection_id: '1',
+    collection_name: 'The Obsidian Collection',
+    sizes: ['One Size'],
+    colors: [
+      { name: 'Noir', hex: '#0A0806' },
+    ],
+    stock: 99,
+    is_featured: false,
+    material: 'Test',
+    origin: 'Test',
     created_at: '2025-01-01',
   },
 ]
