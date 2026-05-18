@@ -18,6 +18,13 @@ async function getAccessToken(): Promise<string> {
   })
 
   const data = await res.json()
+  if (!res.ok || !data.access_token) {
+    throw new Error(
+      `PayPal auth failed (${res.status}): ${data.error_description ?? data.error ?? 'invalid_token'} — ` +
+      `Check that NEXT_PUBLIC_PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET are both from the same ` +
+      `${process.env.PAYPAL_MODE === 'live' ? 'LIVE' : 'SANDBOX'} PayPal app.`
+    )
+  }
   return data.access_token
 }
 
