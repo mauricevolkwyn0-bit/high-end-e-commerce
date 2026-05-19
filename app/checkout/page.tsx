@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
 import { useCartStore } from '@/store/cartStore'
 import { ShippingAddress } from '@/lib/types'
 
@@ -31,9 +30,9 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<Step>('shipping')
   const [address, setAddress] = useState<ShippingAddress>(emptyAddress)
   const [errors, setErrors] = useState<Partial<ShippingAddress>>({})
-  const [paypalError, setPaypalError] = useState<string | null>(null)
   const [yocoError, setYocoError] = useState<string | null>(null)
   const [yocoLoading, setYocoLoading] = useState(false)
+  const [yocoRedirectUrl, setYocoRedirectUrl] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -64,6 +63,25 @@ export default function CheckoutPage() {
   const count = mounted ? totalItems() : 0
   const total = mounted ? totalPrice() : 0
   const visibleItems = mounted ? items : []
+
+  useEffect(() => {
+    if (step !== 'payment' || !mounted || total === 0) return
+    setYocoRedirectUrl(null)
+    const origin = window.location.origin
+    fetch('/api/yoco/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amountInCents: Math.round(total * USD_TO_ZAR * 100),
+        successUrl: `${origin}/checkout?yoco=success`,
+        cancelUrl: `${origin}/checkout?yoco=cancelled`,
+        failureUrl: `${origin}/checkout?yoco=failed`,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => { if (data.redirectUrl) setYocoRedirectUrl(data.redirectUrl) })
+      .catch(() => {})
+  }, [step, mounted, total])
 
   function validate() {
     const required: (keyof ShippingAddress)[] = [
@@ -212,9 +230,13 @@ export default function CheckoutPage() {
                     <button
                       onClick={async () => {
                         setYocoError(null)
+                        sessionStorage.setItem('obsidian_checkout_state', JSON.stringify({ address }))
+                        if (yocoRedirectUrl) {
+                          window.location.href = yocoRedirectUrl
+                          return
+                        }
                         setYocoLoading(true)
                         try {
-                          sessionStorage.setItem('obsidian_checkout_state', JSON.stringify({ address }))
                           const origin = window.location.origin
                           const res = await fetch('/api/yoco/checkout', {
                             method: 'POST',
@@ -246,63 +268,6 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {/* Divider */}
-                {process.env.NEXT_PUBLIC_YOCO_PUBLIC_KEY && process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID && (
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 h-px bg-obsidian-border" />
-                    <span className="text-2xs tracking-[0.2em] uppercase text-obsidian-muted">or pay with</span>
-                    <div className="flex-1 h-px bg-obsidian-border" />
-                  </div>
-                )}
-
-                {/* PayPal */}
-                {process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID && (
-                  <div>
-                    <p className="text-2xs tracking-[0.2em] uppercase text-obsidian-muted mb-3">PayPal</p>
-                    {paypalError && (
-                      <p className="mb-3 text-sm text-red-400">{paypalError}</p>
-                    )}
-                    <PayPalScriptProvider
-                      options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID, currency: 'USD' }}
-                    >
-                      <PayPalButtons
-                        style={{ layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' }}
-                        createOrder={async () => {
-                          setPaypalError(null)
-                          const res = await fetch('/api/paypal/create-order', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ amount: total }),
-                          })
-                          const data = await res.json()
-                          if (!res.ok || !data.id) {
-                            const msg = data.error ?? 'Failed to create PayPal order.'
-                            setPaypalError(msg)
-                            throw new Error(msg)
-                          }
-                          return data.id
-                        }}
-                        onApprove={async (data) => {
-                          const res = await fetch('/api/paypal/capture-order', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ orderId: data.orderID }),
-                          })
-                          const capture = await res.json()
-                          if (capture.status === 'COMPLETED') {
-                            clearCart()
-                            setStep('confirmation')
-                          } else {
-                            setPaypalError('Payment capture failed. Please try again.')
-                          }
-                        }}
-                        onError={(err) => {
-                          setPaypalError(String(err) ?? 'An unexpected PayPal error occurred.')
-                        }}
-                      />
-                    </PayPalScriptProvider>
-                  </div>
-                )}
               </div>
             </div>
           )}
