@@ -37,6 +37,8 @@ const emptyAddress: ShippingAddress = {
 
 type Step = 'shipping' | 'payment' | 'confirmation'
 
+const USD_TO_ZAR = 18.5
+
 export default function CheckoutPage() {
   const { items, totalPrice, totalItems, clearCart } = useCartStore()
   const [mounted, setMounted] = useState(false)
@@ -206,7 +208,7 @@ export default function CheckoutPage() {
                           publicKey: process.env.NEXT_PUBLIC_YOCO_PUBLIC_KEY!,
                         })
                         sdk.showPopup({
-                          amountInCents: Math.round(total * 100),
+                          amountInCents: Math.round(total * USD_TO_ZAR * 100),
                           currency: 'ZAR',
                           name: 'OBSIDIAN',
                           description: 'Your OBSIDIAN order',
@@ -222,7 +224,7 @@ export default function CheckoutPage() {
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
                                   token: result.id,
-                                  amountInCents: Math.round(total * 100),
+                                  amountInCents: Math.round(total * USD_TO_ZAR * 100),
                                 }),
                               })
                               const data = await res.json()
