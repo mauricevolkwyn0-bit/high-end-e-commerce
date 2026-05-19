@@ -3,9 +3,24 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import Script from 'next/script'
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
 import { useCartStore } from '@/store/cartStore'
 import { ShippingAddress } from '@/lib/types'
+
+declare global {
+  interface Window {
+    YocoSDK: new (options: { publicKey: string }) => {
+      showPopup: (options: {
+        amountInCents: number
+        currency: string
+        name: string
+        description?: string
+        callback: (result: { error?: { message: string }; id?: string }) => void
+      }) => void
+    }
+  }
+}
 
 const emptyAddress: ShippingAddress = {
   first_name: '',
@@ -29,6 +44,8 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState<ShippingAddress>(emptyAddress)
   const [errors, setErrors] = useState<Partial<ShippingAddress>>({})
   const [paypalError, setPaypalError] = useState<string | null>(null)
+  const [yocoError, setYocoError] = useState<string | null>(null)
+  const [yocoLoading, setYocoLoading] = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -168,63 +185,124 @@ export default function CheckoutPage() {
                 <p className="text-sm text-obsidian-cream/70">{address.country}</p>
               </div>
 
-              <div className="border border-obsidian-border p-4 sm:p-6">
-                <p className="text-2xs tracking-[0.2em] uppercase text-obsidian-muted mb-6">
+              <div className="border border-obsidian-border p-4 sm:p-6 space-y-6">
+                <Script src="https://js.yoco.com/sdk/v1/yoco-sdk-web.js" strategy="afterInteractive" />
+                <p className="text-2xs tracking-[0.2em] uppercase text-obsidian-muted">
                   Total due: <span className="text-obsidian-cream text-sm ml-2">${total.toLocaleString()}</span>
                 </p>
-                {process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ? (
-                  <PayPalScriptProvider
-                    options={{
-                      clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
-                      currency: 'USD',
-                    }}
-                  >
-                    {paypalError && (
-                      <p className="mb-4 text-sm text-red-400 text-center">{paypalError}</p>
+
+                {/* Yoco card payment */}
+                {process.env.NEXT_PUBLIC_YOCO_PUBLIC_KEY && (
+                  <div>
+                    <p className="text-2xs tracking-[0.2em] uppercase text-obsidian-muted mb-3">Pay by Card</p>
+                    {yocoError && (
+                      <p className="mb-3 text-sm text-red-400">{yocoError}</p>
                     )}
-                    <PayPalButtons
-                      style={{ layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' }}
-                      createOrder={async () => {
-                        setPaypalError(null)
-                        const res = await fetch('/api/paypal/create-order', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ amount: total }),
+                    <button
+                      onClick={() => {
+                        setYocoError(null)
+                        setYocoLoading(true)
+                        const sdk = new window.YocoSDK({
+                          publicKey: process.env.NEXT_PUBLIC_YOCO_PUBLIC_KEY!,
                         })
-                        const data = await res.json()
-                        if (!res.ok || !data.id) {
-                          const msg = data.error ?? 'Failed to create PayPal order. Check server env vars.'
-                          setPaypalError(msg)
-                          throw new Error(msg)
-                        }
-                        return data.id
-                      }}
-                      onApprove={async (data) => {
-                        const res = await fetch('/api/paypal/capture-order', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ orderId: data.orderID }),
+                        sdk.showPopup({
+                          amountInCents: Math.round(total * 100),
+                          currency: 'ZAR',
+                          name: 'OBSIDIAN',
+                          description: 'Your OBSIDIAN order',
+                          callback: async (result) => {
+                            if (result.error) {
+                              setYocoError(result.error.message)
+                              setYocoLoading(false)
+                              return
+                            }
+                            try {
+                              const res = await fetch('/api/yoco/charge', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  token: result.id,
+                                  amountInCents: Math.round(total * 100),
+                                }),
+                              })
+                              const data = await res.json()
+                              if (res.ok && data.status === 'successful') {
+                                clearCart()
+                                setStep('confirmation')
+                              } else {
+                                setYocoError(data.error ?? 'Payment failed. Please try again.')
+                              }
+                            } catch {
+                              setYocoError('An unexpected error occurred. Please try again.')
+                            } finally {
+                              setYocoLoading(false)
+                            }
+                          },
                         })
-                        const capture = await res.json()
-                        if (capture.status === 'COMPLETED') {
-                          clearCart()
-                          setStep('confirmation')
-                        } else {
-                          setPaypalError('Payment capture failed. Please try again.')
-                        }
                       }}
-                      onError={(err) => {
-                        setPaypalError(String(err) ?? 'An unexpected PayPal error occurred.')
-                      }}
-                    />
-                  </PayPalScriptProvider>
-                ) : (
-                  <div className="border border-obsidian-border/50 p-6 text-center space-y-3">
-                    <p className="text-2xs tracking-[0.2em] uppercase text-obsidian-gold">PayPal Not Configured</p>
-                    <p className="text-sm text-obsidian-cream/50">
-                      Add <code className="text-obsidian-gold">NEXT_PUBLIC_PAYPAL_CLIENT_ID</code> to your{' '}
-                      <code className="text-obsidian-cream/70">.env.local</code> to enable payments.
-                    </p>
+                      disabled={yocoLoading}
+                      className="w-full bg-obsidian-gold hover:bg-obsidian-gold-light disabled:opacity-50 disabled:cursor-not-allowed text-obsidian-black py-4 tracking-[0.3em] uppercase text-2xs font-medium transition-colors duration-300"
+                    >
+                      {yocoLoading ? 'Processing…' : 'Pay by Card'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Divider */}
+                {process.env.NEXT_PUBLIC_YOCO_PUBLIC_KEY && process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID && (
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 h-px bg-obsidian-border" />
+                    <span className="text-2xs tracking-[0.2em] uppercase text-obsidian-muted">or pay with</span>
+                    <div className="flex-1 h-px bg-obsidian-border" />
+                  </div>
+                )}
+
+                {/* PayPal */}
+                {process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID && (
+                  <div>
+                    <p className="text-2xs tracking-[0.2em] uppercase text-obsidian-muted mb-3">PayPal</p>
+                    {paypalError && (
+                      <p className="mb-3 text-sm text-red-400">{paypalError}</p>
+                    )}
+                    <PayPalScriptProvider
+                      options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID, currency: 'USD' }}
+                    >
+                      <PayPalButtons
+                        style={{ layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' }}
+                        createOrder={async () => {
+                          setPaypalError(null)
+                          const res = await fetch('/api/paypal/create-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount: total }),
+                          })
+                          const data = await res.json()
+                          if (!res.ok || !data.id) {
+                            const msg = data.error ?? 'Failed to create PayPal order.'
+                            setPaypalError(msg)
+                            throw new Error(msg)
+                          }
+                          return data.id
+                        }}
+                        onApprove={async (data) => {
+                          const res = await fetch('/api/paypal/capture-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ orderId: data.orderID }),
+                          })
+                          const capture = await res.json()
+                          if (capture.status === 'COMPLETED') {
+                            clearCart()
+                            setStep('confirmation')
+                          } else {
+                            setPaypalError('Payment capture failed. Please try again.')
+                          }
+                        }}
+                        onError={(err) => {
+                          setPaypalError(String(err) ?? 'An unexpected PayPal error occurred.')
+                        }}
+                      />
+                    </PayPalScriptProvider>
                   </div>
                 )}
               </div>
