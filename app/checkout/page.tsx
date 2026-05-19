@@ -3,24 +3,10 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import Script from 'next/script'
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
 import { useCartStore } from '@/store/cartStore'
 import { ShippingAddress } from '@/lib/types'
 
-declare global {
-  interface Window {
-    YocoSDK: new (options: { publicKey: string }) => {
-      showPopup: (options: {
-        amountInCents: number
-        currency: string
-        name: string
-        description?: string
-        callback: (result: { error?: { message: string }; id?: string }) => void
-      }) => void
-    }
-  }
-}
 
 const emptyAddress: ShippingAddress = {
   first_name: '',
@@ -49,7 +35,31 @@ export default function CheckoutPage() {
   const [yocoError, setYocoError] = useState<string | null>(null)
   const [yocoLoading, setYocoLoading] = useState(false)
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => {
+    setMounted(true)
+    const params = new URLSearchParams(window.location.search)
+    const yocoStatus = params.get('yoco')
+    if (!yocoStatus) return
+    let savedAddress = emptyAddress
+    try {
+      const saved = sessionStorage.getItem('obsidian_checkout_state')
+      if (saved) {
+        savedAddress = JSON.parse(saved).address ?? emptyAddress
+        sessionStorage.removeItem('obsidian_checkout_state')
+      }
+    } catch {}
+    setAddress(savedAddress)
+    window.history.replaceState({}, '', '/checkout')
+    if (yocoStatus === 'success') {
+      clearCart()
+      setStep('confirmation')
+    } else if (yocoStatus === 'failed') {
+      setStep('payment')
+      setYocoError('Payment failed. Please try again.')
+    } else if (yocoStatus === 'cancelled') {
+      setStep('payment')
+    }
+  }, [clearCart])
 
   const count = mounted ? totalItems() : 0
   const total = mounted ? totalPrice() : 0
@@ -188,7 +198,6 @@ export default function CheckoutPage() {
               </div>
 
               <div className="border border-obsidian-border p-4 sm:p-6 space-y-6">
-                <Script src="https://js.yoco.com/sdk/v1/yoco-sdk-web.js" strategy="afterInteractive" />
                 <p className="text-2xs tracking-[0.2em] uppercase text-obsidian-muted">
                   Total due: <span className="text-obsidian-cream text-sm ml-2">${total.toLocaleString()}</span>
                 </p>
@@ -201,46 +210,33 @@ export default function CheckoutPage() {
                       <p className="mb-3 text-sm text-red-400">{yocoError}</p>
                     )}
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         setYocoError(null)
                         setYocoLoading(true)
-                        const sdk = new window.YocoSDK({
-                          publicKey: process.env.NEXT_PUBLIC_YOCO_PUBLIC_KEY!,
-                        })
-                        sdk.showPopup({
-                          amountInCents: Math.round(total * USD_TO_ZAR * 100),
-                          currency: 'ZAR',
-                          name: 'OBSIDIAN',
-                          description: 'Your OBSIDIAN order',
-                          callback: async (result) => {
-                            if (result.error) {
-                              setYocoError(result.error.message)
-                              setYocoLoading(false)
-                              return
-                            }
-                            try {
-                              const res = await fetch('/api/yoco/charge', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                  token: result.id,
-                                  amountInCents: Math.round(total * USD_TO_ZAR * 100),
-                                }),
-                              })
-                              const data = await res.json()
-                              if (res.ok && data.status === 'successful') {
-                                clearCart()
-                                setStep('confirmation')
-                              } else {
-                                setYocoError(data.error ?? 'Payment failed. Please try again.')
-                              }
-                            } catch {
-                              setYocoError('An unexpected error occurred. Please try again.')
-                            } finally {
-                              setYocoLoading(false)
-                            }
-                          },
-                        })
+                        try {
+                          sessionStorage.setItem('obsidian_checkout_state', JSON.stringify({ address }))
+                          const origin = window.location.origin
+                          const res = await fetch('/api/yoco/checkout', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              amountInCents: Math.round(total * USD_TO_ZAR * 100),
+                              successUrl: `${origin}/checkout?yoco=success`,
+                              cancelUrl: `${origin}/checkout?yoco=cancelled`,
+                              failureUrl: `${origin}/checkout?yoco=failed`,
+                            }),
+                          })
+                          const data = await res.json()
+                          if (!res.ok) {
+                            setYocoError(data.error ?? 'Failed to initiate payment.')
+                            setYocoLoading(false)
+                            return
+                          }
+                          window.location.href = data.redirectUrl
+                        } catch {
+                          setYocoError('An unexpected error occurred. Please try again.')
+                          setYocoLoading(false)
+                        }
                       }}
                       disabled={yocoLoading}
                       className="w-full bg-obsidian-gold hover:bg-obsidian-gold-light disabled:opacity-50 disabled:cursor-not-allowed text-obsidian-black py-4 tracking-[0.3em] uppercase text-2xs font-medium transition-colors duration-300"

@@ -1,17 +1,28 @@
-export async function createYocoCharge(token: string, amountInCents: number) {
-  const res = await fetch('https://online.yoco.com/v1/charges/', {
+export async function createYocoCheckout(
+  amountInCents: number,
+  successUrl: string,
+  cancelUrl: string,
+  failureUrl: string,
+) {
+  const res = await fetch('https://payments.yoco.com/api/checkouts', {
     method: 'POST',
     headers: {
-      'X-Auth-Secret-Key': process.env.YOCO_SECRET_KEY!,
+      'Authorization': `Bearer ${process.env.YOCO_SECRET_KEY!}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ token, amountInCents, currency: 'ZAR' }),
+    body: JSON.stringify({
+      amount: amountInCents,
+      currency: 'ZAR',
+      successUrl,
+      cancelUrl,
+      failureUrl,
+    }),
   })
 
   const data = await res.json()
   if (!res.ok) {
     throw new Error(
-      `Yoco charge failed (${res.status}): ${data.displayMessage ?? data.errorCode ?? 'unknown error'}`
+      `Yoco checkout failed (${res.status}): ${data.displayMessage ?? data.errorCode ?? 'unknown error'}`
     )
   }
   return data
